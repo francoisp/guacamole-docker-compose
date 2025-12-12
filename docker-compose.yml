@@ -101,7 +101,8 @@ services:
   # guacd
   guacd:
     container_name: guacd_compose
-    image: guacamole/guacd:1.6.0
+    #image: guacamole/guacd:1.6.0
+    image: guacamole-server:1.6.0vc
     networks:
       - guacnetwork_compose
     restart: always
@@ -119,6 +120,8 @@ services:
     image: postgres:15.2-alpine
     networks:
       - guacnetwork_compose
+    ports:
+       - "5433:5432"
     restart: always
     volumes:
     - ./init:/docker-entrypoint-initdb.d:z
@@ -139,7 +142,15 @@ services:
       POSTGRESQL_PASSWORD: 'ChooseYourOwnPasswordHere1234'
       POSTGRESQL_USERNAME: guacamole_user
       RECORDING_SEARCH_PATH: /record
-    image: guacamole/guacamole:1.6.0
+      GUAC_SCREENSHOT_PATH: /record
+      # Enable reading properties from environment variables
+      ENABLE_ENVIRONMENT_PROPERTIES: 'true'
+      # Trusted parent origins for postMessage API (comma-separated)
+      # ⚠️ SECURITY: Replace '*' with specific domains in production!
+      # Example: TRUSTED_PARENT_ORIGINS: 'https://portal.example.com,https://admin.example.com'
+      TRUSTED_PARENT_ORIGINS: '*'
+    #image: guacamole/guacamole:1.6.0
+    image: guacamole-client:1.6.0vc
     networks:
       - guacnetwork_compose
     volumes:
@@ -166,3 +177,38 @@ services:
    networks:
      - guacnetwork_compose
 ####################################################################################
+
+
+######## anything
+
+#  anything-llm:
+#    #image: 192.168.21.3:5000/anythingllm
+#    container_name: anythingllm
+#    build:
+##      context: ../anything-llm/
+#      dockerfile: ./docker/Dockerfile
+#      args:
+#        ARG_UID: ${UID:-1000}
+#        ARG_GID: ${GID:-1000}
+#    restart: unless-stopped
+#    cap_add:
+#      - SYS_ADMIN
+#    volumes:
+#      - "../anything-llm/docker/.env:/app/server/.env"
+#      - "../anything-llm/server/storage:/app/server/storage"
+#      - "../anything-llm/collector/hotdir/:/app/collector/hotdir"
+#      - "../anything-llm/collector/outputs/:/app/collector/outputs"
+#    user: "${UID:-1000}:${GID:-1000}"
+#    ports:
+#      - "3001:3001"
+#    env_file:
+#      - ../anything-llm/docker/.env
+#    # networks:
+#    #   - anything-llm
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    #depends_on:
+#    #   - postgres
+#      # - tika
+#      # - docling
+#      # - searxng
